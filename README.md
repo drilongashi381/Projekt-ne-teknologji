@@ -1,56 +1,127 @@
-# Projekt-ne-teknologji
-Loje e thjeshte punuar nga Drilon Gashi per shkollen"Jeronim de Rada"
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Space Battle Game</title>
+
+<title>Ultimate Space War</title>
 
 <style>
     body{
         margin:0;
-        overflow:hidden;
-        background:black;
-        color:white;
         font-family:Arial;
+        background:#050816;
+        color:white;
+        overflow-y:auto;
+    }
+
+    h1,p{
         text-align:center;
     }
 
-    canvas{
-        background:#111;
-        display:block;
-        margin:auto;
-        border:3px solid white;
+    #gameContainer{
+        width:100%;
+        display:flex;
+        justify-content:center;
+        margin-top:20px;
     }
 
-    h1{
-        margin-top:10px;
+    canvas{
+        background:black;
+        border:4px solid white;
+    }
+
+    .info{
+        width:80%;
+        margin:auto;
+        margin-top:40px;
+        background:#111827;
+        padding:20px;
+        border-radius:15px;
+        line-height:1.8;
+    }
+
+    button{
+        padding:12px 20px;
+        font-size:18px;
+        background:lime;
+        border:none;
+        border-radius:10px;
+        cursor:pointer;
     }
 </style>
 </head>
 
 <body>
 
-<h1>🚀 Space Battle</h1>
+<h1>🚀 Ultimate Space War</h1>
 <p>Made by Drilon Gashi</p>
 <p>Teacher: Ambeljeta Ismaili</p>
 
-<canvas id="game" width="800" height="500"></canvas>
+<div id="gameContainer">
+    <canvas id="game" width="900" height="500"></canvas>
+</div>
+
+<div style="text-align:center; margin-top:20px;">
+    <button onclick="restartGame()">Restart Game</button>
+</div>
+
+<div class="info">
+    <h2>📖 About The Game</h2>
+
+    <p>
+        This is a harder space shooting game.
+        You must survive enemy attacks and destroy ships.
+    </p>
+
+    <p>
+        Controls:
+    </p>
+
+    <ul>
+        <li>⬅️ Arrow Left = Move Left</li>
+        <li>➡️ Arrow Right = Move Right</li>
+        <li>SPACE = Shoot</li>
+    </ul>
+
+    <p>
+        The game becomes faster over time.
+        Try to get the highest score possible.
+    </p>
+
+    <p>
+        Scroll down to read this page while the game stays above.
+    </p>
+
+    <p>
+        ⭐ Advanced features:
+    </p>
+
+    <ul>
+        <li>Enemy waves</li>
+        <li>Score system</li>
+        <li>Lives system</li>
+        <li>Game over screen</li>
+        <li>Increasing difficulty</li>
+    </ul>
+</div>
 
 <script>
+
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
 let score = 0;
+let lives = 3;
 let gameOver = false;
+let enemySpeed = 2;
 
 const player = {
-    x: 370,
+    x: 420,
     y: 430,
     width: 60,
     height: 60,
-    speed: 7
+    speed: 8
 };
 
 const bullets = [];
@@ -58,38 +129,43 @@ const enemies = [];
 
 const keys = {};
 
-document.addEventListener("keydown", (e)=>{
+document.addEventListener("keydown", e => {
+
     keys[e.key] = true;
 
-    if(e.key === " "){
+    if(e.key === " " && !gameOver){
+
         bullets.push({
             x: player.x + 27,
             y: player.y,
             width: 6,
-            height: 15
+            height: 18
         });
     }
 });
 
-document.addEventListener("keyup", (e)=>{
+document.addEventListener("keyup", e => {
     keys[e.key] = false;
 });
 
 function spawnEnemy(){
+
     enemies.push({
-        x: Math.random() * 740,
-        y: -50,
+        x: Math.random() * 840,
+        y: -60,
         width: 50,
         height: 50,
-        speed: 2 + Math.random()*3
+        speed: enemySpeed + Math.random()*2
     });
 }
 
-setInterval(()=>{
+setInterval(() => {
+
     if(!gameOver){
         spawnEnemy();
     }
-},1000);
+
+}, 800);
 
 function update(){
 
@@ -101,8 +177,10 @@ function update(){
         player.x += player.speed;
     }
 
+    // bullets
     for(let i=0;i<bullets.length;i++){
-        bullets[i].y -= 10;
+
+        bullets[i].y -= 12;
 
         if(bullets[i].y < 0){
             bullets.splice(i,1);
@@ -110,14 +188,28 @@ function update(){
         }
     }
 
+    // enemies
     for(let i=0;i<enemies.length;i++){
 
         enemies[i].y += enemies[i].speed;
 
+        // enemy reaches bottom
         if(enemies[i].y > canvas.height){
-            gameOver = true;
+
+            enemies.splice(i,1);
+
+            lives--;
+
+            i--;
+
+            if(lives <= 0){
+                gameOver = true;
+            }
+
+            continue;
         }
 
+        // collision bullets
         for(let j=0;j<bullets.length;j++){
 
             if(
@@ -126,10 +218,15 @@ function update(){
                 bullets[j].y < enemies[i].y + enemies[i].height &&
                 bullets[j].y + bullets[j].height > enemies[i].y
             ){
+
                 enemies.splice(i,1);
                 bullets.splice(j,1);
 
-                score++;
+                score += 10;
+
+                if(score % 50 === 0){
+                    enemySpeed += 0.5;
+                }
 
                 i--;
                 break;
@@ -138,46 +235,61 @@ function update(){
     }
 }
 
+function drawBackground(){
+
+    for(let i=0;i<120;i++){
+
+        ctx.fillStyle = "white";
+
+        ctx.fillRect(
+            Math.random()*canvas.width,
+            Math.random()*canvas.height,
+            2,
+            2
+        );
+    }
+}
+
 function draw(){
 
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
-    // stars
-    for(let i=0;i<100;i++){
-        ctx.fillStyle="white";
-        ctx.fillRect(Math.random()*800,Math.random()*500,2,2);
-    }
+    drawBackground();
 
     // player
     ctx.fillStyle = "cyan";
-    ctx.fillRect(player.x,player.y,player.width,player.height);
+    ctx.fillRect(player.x, player.y, player.width, player.height);
 
     // bullets
     ctx.fillStyle = "yellow";
 
-    bullets.forEach(b=>{
+    bullets.forEach(b => {
         ctx.fillRect(b.x,b.y,b.width,b.height);
     });
 
     // enemies
     ctx.fillStyle = "red";
 
-    enemies.forEach(e=>{
+    enemies.forEach(e => {
         ctx.fillRect(e.x,e.y,e.width,e.height);
     });
 
     // score
-    ctx.fillStyle="white";
-    ctx.font="24px Arial";
-    ctx.fillText("Score: " + score, 10, 30);
+    ctx.fillStyle = "white";
+    ctx.font = "24px Arial";
+
+    ctx.fillText("Score: " + score, 20, 35);
+    ctx.fillText("Lives: " + lives, 20, 70);
 
     if(gameOver){
-        ctx.fillStyle="white";
-        ctx.font="50px Arial";
+
+        ctx.fillStyle = "white";
+        ctx.font = "60px Arial";
+
         ctx.fillText("GAME OVER", 250, 250);
 
-        ctx.font="30px Arial";
-        ctx.fillText("Final Score: " + score, 300, 300);
+        ctx.font = "30px Arial";
+        ctx.fillText("Final Score: " + score, 350, 310);
     }
 }
 
@@ -192,12 +304,22 @@ function gameLoop(){
     requestAnimationFrame(gameLoop);
 }
 
+function restartGame(){
+
+    score = 0;
+    lives = 3;
+    enemySpeed = 2;
+    gameOver = false;
+
+    enemies.length = 0;
+    bullets.length = 0;
+
+    player.x = 420;
+}
+
 gameLoop();
 
 </script>
-
-</body>
-</html>
 
 </body>
 </html>
