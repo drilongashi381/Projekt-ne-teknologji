@@ -4,106 +4,105 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Ultimate Space War</title>
+<title>Galaxy Fighter</title>
 
 <style>
-    body{
-        margin:0;
-        font-family:Arial;
-        background:#050816;
-        color:white;
-        overflow-y:auto;
-    }
 
-    h1,p{
-        text-align:center;
-    }
+body{
+    margin:0;
+    font-family:Arial;
+    background:#06121f;
+    color:white;
+    overflow-y:auto;
+}
 
-    #gameContainer{
-        width:100%;
-        display:flex;
-        justify-content:center;
-        margin-top:20px;
-    }
+h1,p{
+    text-align:center;
+}
 
-    canvas{
-        background:black;
-        border:4px solid white;
-    }
+#gameBox{
+    display:flex;
+    justify-content:center;
+    margin-top:20px;
+}
 
-    .info{
-        width:80%;
-        margin:auto;
-        margin-top:40px;
-        background:#111827;
-        padding:20px;
-        border-radius:15px;
-        line-height:1.8;
-    }
+canvas{
+    background:black;
+    border:4px solid white;
+}
 
-    button{
-        padding:12px 20px;
-        font-size:18px;
-        background:lime;
-        border:none;
-        border-radius:10px;
-        cursor:pointer;
-    }
+.info{
+    width:80%;
+    margin:auto;
+    margin-top:40px;
+    background:#111827;
+    padding:25px;
+    border-radius:15px;
+    line-height:1.8;
+}
+
+button{
+    padding:12px 22px;
+    font-size:18px;
+    border:none;
+    border-radius:10px;
+    background:lime;
+    cursor:pointer;
+}
+
+.center{
+    text-align:center;
+    margin-top:20px;
+}
+
 </style>
 </head>
 
 <body>
 
-<h1>🚀 Ultimate Space War</h1>
+<h1>🚀 Galaxy Fighter</h1>
+
 <p>Made by Drilon Gashi</p>
 <p>Teacher: Ambeljeta Ismaili</p>
 
-<div id="gameContainer">
+<div id="gameBox">
     <canvas id="game" width="900" height="500"></canvas>
 </div>
 
-<div style="text-align:center; margin-top:20px;">
+<div class="center">
     <button onclick="restartGame()">Restart Game</button>
 </div>
 
 <div class="info">
-    <h2>📖 About The Game</h2>
 
-    <p>
-        This is a harder space shooting game.
-        You must survive enemy attacks and destroy ships.
-    </p>
+<h2>📖 About This Game</h2>
 
-    <p>
-        Controls:
-    </p>
+<p>
+This is an advanced space game made using HTML, CSS and JavaScript.
+</p>
 
-    <ul>
-        <li>⬅️ Arrow Left = Move Left</li>
-        <li>➡️ Arrow Right = Move Right</li>
-        <li>SPACE = Shoot</li>
-    </ul>
+<p>
+Controls:
+</p>
 
-    <p>
-        The game becomes faster over time.
-        Try to get the highest score possible.
-    </p>
+<ul>
+<li>⬅️ Left Arrow = Move Left</li>
+<li>➡️ Right Arrow = Move Right</li>
+<li>SPACE = Shoot</li>
+</ul>
 
-    <p>
-        Scroll down to read this page while the game stays above.
-    </p>
+<p>
+You can scroll down normally while the game works above.
+</p>
 
-    <p>
-        ⭐ Advanced features:
-    </p>
+<p>
+The enemies become faster when your score increases.
+</p>
 
-    <ul>
-        <li>Enemy waves</li>
-        <li>Score system</li>
-        <li>Lives system</li>
-        <li>Game over screen</li>
-        <li>Increasing difficulty</li>
-    </ul>
+<p>
+Try to survive and get the highest score possible.
+</p>
+
 </div>
 
 <script>
@@ -118,7 +117,7 @@ let enemySpeed = 2;
 
 const player = {
     x: 420,
-    y: 430,
+    y: 420,
     width: 60,
     height: 60,
     speed: 8
@@ -129,7 +128,12 @@ const enemies = [];
 
 const keys = {};
 
-document.addEventListener("keydown", e => {
+document.addEventListener("keydown", function(e){
+
+    // stop only left/right scrolling
+    if(e.key === "ArrowLeft" || e.key === "ArrowRight"){
+        e.preventDefault();
+    }
 
     keys[e.key] = true;
 
@@ -144,31 +148,32 @@ document.addEventListener("keydown", e => {
     }
 });
 
-document.addEventListener("keyup", e => {
+document.addEventListener("keyup", function(e){
     keys[e.key] = false;
 });
 
-function spawnEnemy(){
+function createEnemy(){
 
     enemies.push({
         x: Math.random() * 840,
-        y: -60,
+        y: -50,
         width: 50,
         height: 50,
         speed: enemySpeed + Math.random()*2
     });
 }
 
-setInterval(() => {
+setInterval(function(){
 
     if(!gameOver){
-        spawnEnemy();
+        createEnemy();
     }
 
-}, 800);
+},700);
 
 function update(){
 
+    // movement
     if(keys["ArrowLeft"] && player.x > 0){
         player.x -= player.speed;
     }
@@ -193,7 +198,7 @@ function update(){
 
         enemies[i].y += enemies[i].speed;
 
-        // enemy reaches bottom
+        // bottom hit
         if(enemies[i].y > canvas.height){
 
             enemies.splice(i,1);
@@ -209,7 +214,7 @@ function update(){
             continue;
         }
 
-        // collision bullets
+        // collision
         for(let j=0;j<bullets.length;j++){
 
             if(
@@ -237,7 +242,7 @@ function update(){
 
 function drawBackground(){
 
-    for(let i=0;i<120;i++){
+    for(let i=0;i<100;i++){
 
         ctx.fillStyle = "white";
 
@@ -258,38 +263,61 @@ function draw(){
 
     // player
     ctx.fillStyle = "cyan";
-    ctx.fillRect(player.x, player.y, player.width, player.height);
+
+    ctx.fillRect(
+        player.x,
+        player.y,
+        player.width,
+        player.height
+    );
 
     // bullets
     ctx.fillStyle = "yellow";
 
-    bullets.forEach(b => {
-        ctx.fillRect(b.x,b.y,b.width,b.height);
+    bullets.forEach(function(b){
+
+        ctx.fillRect(
+            b.x,
+            b.y,
+            b.width,
+            b.height
+        );
     });
 
     // enemies
     ctx.fillStyle = "red";
 
-    enemies.forEach(e => {
-        ctx.fillRect(e.x,e.y,e.width,e.height);
+    enemies.forEach(function(e){
+
+        ctx.fillRect(
+            e.x,
+            e.y,
+            e.width,
+            e.height
+        );
     });
 
     // score
     ctx.fillStyle = "white";
     ctx.font = "24px Arial";
 
-    ctx.fillText("Score: " + score, 20, 35);
-    ctx.fillText("Lives: " + lives, 20, 70);
+    ctx.fillText("Score: " + score,20,35);
+    ctx.fillText("Lives: " + lives,20,70);
 
     if(gameOver){
 
         ctx.fillStyle = "white";
         ctx.font = "60px Arial";
 
-        ctx.fillText("GAME OVER", 250, 250);
+        ctx.fillText("GAME OVER",250,250);
 
         ctx.font = "30px Arial";
-        ctx.fillText("Final Score: " + score, 350, 310);
+
+        ctx.fillText(
+            "Final Score: " + score,
+            330,
+            310
+        );
     }
 }
 
